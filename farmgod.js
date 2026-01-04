@@ -813,7 +813,7 @@ window.FarmGod.Main = (function (Library, Translation) {
                 })
                 .get(),
               speed: Math.max(
-                .. .$el
+                ...$el
                   .find(
                     'input[type="text"], input[type="number"]'
                   )
