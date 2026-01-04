@@ -1,3 +1,4 @@
+//123
 javascript:
 ScriptAPI.register('FarmGod', true, 'Warre', 'nl.tribalwars@coma.innogames.de');
 
