@@ -1,4 +1,5 @@
-//123
+//512
+
 javascript:
 ScriptAPI.register('FarmGod', true, 'Warre', 'nl.tribalwars@coma.innogames.de');
 
@@ -175,19 +176,18 @@ window.FarmGod.Translation = (function () {
       missingFeatures: 'Script requires a premium account and loot assistent!',
       options: {
         title: 'FarmGod Options',
-        warning: '<b>Warning:</b><br>- Make sure A is set as your default microfarm and B as a larger microfarm<br>- Make sure the farm filters are set correctly before using the script',
-        filterImage: 'https://higamy.github.io/TW/Scripts/Assets/farmGodFilters.png',
+        warning: '<b>Warning:</b>',
         group: 'Send farms from group:',
         distance: 'Maximum fields for farms:',
         time: 'How much time in minutes should there be between farms:',
         wall: 'Maximum wall level:',
         losses: 'Send farm to villages with partial losses:',
         maxloot: 'Send a B farm if the last loot was full:',
-        newbarbs: 'Add new barbs te farm:',
+        newbarbs: 'Add new barbs to farm:',
         button: 'Plan farms',
       },
       table: { noFarmsPlanned: 'No farms can be sent with the specified settings.', origin: 'Origin', target: 'Target', fields: 'fields', farm: 'Farm', goTo: 'Go to' },
-      messages: { villageChanged: 'Successfully changed village!', villageError: 'All farms for the current village have been sent!', sendError: 'Error: farm not send!' },
+      messages: { villageChanged: 'Successfully changed village!', villageError: 'All farms for the current village have been sent!', sendError: 'Error: farm not sent!' },
     },
   };
   const get = function () { return msg.int; };
@@ -210,7 +210,7 @@ window.FarmGod.Main = (function (Library, Translation) {
               optionGroup: parseInt($('.optionGroup').val()),
               optionDistance: parseFloat($('.optionDistance').val()),
               optionTime: parseFloat($('.optionTime').val()),
-              optionWall: parseInt($('.optionWall').val()) || 20,
+              optionWall: parseInt($('.optionWall').val()),
               optionLosses: $('.optionLosses').prop('checked'),
               optionMaxloot: $('.optionMaxloot').prop('checked'),
               optionNewbarbs: $('.optionNewbarbs').prop('checked') || false,
@@ -247,7 +247,7 @@ window.FarmGod.Main = (function (Library, Translation) {
   };
 
   const buildOptions = function () {
-    let options = JSON.parse(localStorage.getItem('farmGod_options')) || { optionGroup: 0, optionDistance: 25, optionTime: 10, optionWall: 0, optionLosses: false, optionMaxloot: true, optionNewbarbs: true };
+    let options = JSON.parse(localStorage.getItem('farmGod_options')) || { optionGroup: 0, optionDistance: 25, optionTime: 10, optionWall: 20, optionLosses: false, optionMaxloot: true, optionNewbarbs: true };
     return $.when(buildGroupSelect(options.optionGroup)).then((groupSelect) => {
       return `<style>#popup_box_FarmGod{text-align:center;width:550px;}</style>
               <h3>${t.options.title}</h3><br><div class="optionsContent">
@@ -318,11 +318,13 @@ window.FarmGod.Main = (function (Library, Translation) {
       }
       $html.find('#plunder_list').find('tr[id^="village_"]').each((i, el) => {
         let $el = $(el);
+        let wallValue = $el.find('td').eq(6).text().trim();
+        let wallNum = (wallValue === '?' || wallValue === '-' || wallValue === '') ? 0 : parseInt(wallValue);
         data.farms.farms[$el.find('a[href*="screen=report"]').first().text().toCoord()] = { 
           id: $el.attr('id').split('_')[1].toNumber(), 
           color: $el.find('img[src*="dots/"]').attr('src').match(/dots\/(green|yellow|red|blue|red_blue)/)[1], 
           max_loot: $el.find('img[src*="max_loot/1"]').length > 0,
-          wall: parseInt($el.find('td').eq(6).text()) || 0 // Liest Wall aus Spalte 7 
+          wall: isNaN(wallNum) ? 0 : wallNum
         };
       });
     };
@@ -342,9 +344,10 @@ window.FarmGod.Main = (function (Library, Translation) {
     for (let prop in data.villages) {
       Object.keys(data.farms.farms).map(k => ({ coord: k, dis: lib.getDistance(prop, k) })).sort((a, b) => a.dis - b.dis).forEach(el => {
         let target = data.farms.farms[el.coord];
-        if (target.wall > optionWall) return; // Wall Filter 
+        if (target.wall > optionWall) return; // Wall Filter
         let tplName = optionMaxloot && target.max_loot ? 'b' : 'a';
         let tpl = data.farms.templates[tplName];
+        if (!tpl) return;
         let unitsLeft = lib.subtractArrays(data.villages[prop].units, tpl.units);
         let arrival = Math.round(serverTime + el.dis * tpl.speed * 60);
         let ok = el.dis <= optionDistance && unitsLeft;
