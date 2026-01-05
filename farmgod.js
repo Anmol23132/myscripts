@@ -960,6 +960,14 @@ window.FarmGod.Main = (function (Library, Translation) {
       });
   };
 
+
+
+
+
+
+
+
+
 const createPlanning = function (
     optionDistance,
     optionTime,
@@ -967,7 +975,17 @@ const createPlanning = function (
     data
   ) {
     let plan = { counter: 0, farms: {} };
-    let serverTime = Math.round(lib.getCurrentServerTime() / 1000);	
+    let serverTime = Math.round(lib.getCurrentServerTime() / 1000);
+
+    // --- NEU: INDIVIDUELLE INTERVALLE PRO ZIEL-KOORDINATE ---
+    // Hier kannst du Ziele eintragen, die öfter (oder seltener) gefarmt werden sollen.
+    // Format: "Koordinate": Minuten
+    const customTargetIntervals = {
+      "524|613": 4,  // Dieses Dorf wird alle 6 Minuten angegriffen
+      "525|613": 5,
+ 	"526|615":4
+    };
+    // -------------------------------------------------------
 
     for (let prop in data.villages) {
       let orderedFarms = Object.keys(data.farms.farms)
@@ -998,7 +1016,7 @@ const createPlanning = function (
             return;
         }
         // --- ENDE DER KOORDINATEN-BEGRENZUNG ---
-	
+
         let template_name =
           optionMaxloot &&
             farmIndex.hasOwnProperty('max_loot') &&
@@ -1018,7 +1036,16 @@ const createPlanning = function (
           distance * template.speed * 60 +
           Math.round(plan.counter / 5)
         );
-        let maxTimeDiff = Math.round(optionTime * 60);
+
+        // --- LOGIK FÜR VARIABLES INTERVALL ---
+        // Prüfe, ob das Ziel in der Liste ist, sonst nimm den Standard (optionTime)
+        let currentInterval = customTargetIntervals.hasOwnProperty(el.coord)
+          ? customTargetIntervals[el.coord]
+          : optionTime;
+
+        let maxTimeDiff = Math.round(currentInterval * 60); // Umrechnung in Sekunden
+        // --------------------------------------
+
         let timeDiff = true;
         if (data.commands.hasOwnProperty(el.coord)) {
           if (
