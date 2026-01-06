@@ -1006,7 +1006,7 @@ const createPlanning = function (
         }
 
         // Beispiel für Dorf 001: Darf nur Ziele mit x > 500 angreifen
-        if (prop === '525|614' && targetX <= 516) {
+        if (prop === '525|614' && targetX <= 515) {
             return;
         }
         // --- ENDE DER KOORDINATEN-BEGRENZUNG ---
