@@ -981,9 +981,9 @@ const createPlanning = function (
     // Hier kannst du Ziele eintragen, die öfter (oder seltener) gefarmt werden sollen.
     // Format: "Koordinate": Minuten
     const customTargetIntervals = {
-      "524|613": 4,  // Dieses Dorf wird alle 6 Minuten angegriffen
-      "525|613": 5,
- 	"526|615":4
+      "524|613": 3,  // Dieses Dorf wird alle 6 Minuten angegriffen
+      "525|613": 4,
+ 	"526|615":3
     };
     // -------------------------------------------------------
 
@@ -1003,6 +1003,9 @@ const createPlanning = function (
         // Beispiel für Dorf 003: Ersetze 'XXX|YYY' mit der echten Koordinate von 003
         if (prop === '527|610' && targetY >= 610) {
             return; // Ziel wird übersprungen, wenn y größer als 610
+        }
+		if (prop === '527|610' && targetX <= 515) {
+            return;
         }
 
         // Beispiel für Dorf 001: Darf nur Ziele mit x > 500 angreifen
