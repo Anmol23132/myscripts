@@ -566,8 +566,9 @@ window.FarmGod.Main = (function (Library, Translation) {
       });
   };
 
-  const buildOptions = function () {
-    let options = JSON.parse(localStorage.getItem('farmGod_options')) || {
+ const buildOptions = function () {
+    let options = JSON.parse(localStorage.getItem('farmGod_options')) ||
+    {
       optionGroup: 0,
       optionDistance: 25,
       optionTime: 10,
@@ -575,6 +576,7 @@ window.FarmGod.Main = (function (Library, Translation) {
       optionMaxloot: true,
       optionNewbarbs: true,
     };
+
     let checkboxSettings = [false, true, true, true, false];
     let checkboxError = $('#plunder_list_filters')
       .find('input[type="checkbox"]')
@@ -583,9 +585,11 @@ window.FarmGod.Main = (function (Library, Translation) {
       })
       .get()
       .includes(true);
+
     let $templateRows = $('form[action*="action=edit_all"]')
       .find('input[type="hidden"][name*="template"]')
       .closest('tr');
+
     let templateError =
       $templateRows.first().find('td').last().text().toNumber() >=
       $templateRows.last().find('td').last().text().toNumber();
@@ -598,6 +602,7 @@ window.FarmGod.Main = (function (Library, Translation) {
             ? `<div class="info_box" style="line-height: 15px;font-size:10px;text-align:left;"><p style="margin:0px 5px;">${t.options.warning}<br><img src="${t.options.filterImage}" style="width:100%;"></p></div><br>`
             : ``
           }
+    
                 <div style="width:90%;margin:auto;background: url(\'graphic/index/main_bg.jpg\') 100% 0% #E3D5B3;border: 1px solid #7D510F;border-collapse: separate !important;border-spacing: 0px !important;"><table class="vis" style="width:100%;text-align:left;font-size:11px;">
                   <tr><td>${t.options.group}</td><td>${groupSelect}</td></tr>
                   <tr><td>${t.options.distance
@@ -607,17 +612,17 @@ window.FarmGod.Main = (function (Library, Translation) {
           }</td><td><input type="text" size="5" class="optionTime" value="${options.optionTime
           }"></td></tr>
                   <tr><td>${t.options.losses
-          }</td><td><input type="checkbox" class="optionLosses" ${options.optionLosses ? 'checked' : ''
+          }</td><td><input type="checkbox" class="optionLosses" ${options.optionLosses ?
+            'checked' : ''
           }></td></tr>
                   <tr><td>${t.options.maxloot
-          }</td><td><input type="checkbox" class="optionMaxloot" ${options.optionMaxloot ? 'checked' : ''
+          }</td><td><input type="checkbox" class="optionMaxloot" ${options.optionMaxloot ?
+            'checked' : ''
           }></td></tr>
-                  ${game_data.market == 'nl'
-            ? `<tr><td>${t.options.newbarbs
-            }</td><td><input type="checkbox" class="optionNewbarbs" ${options.optionNewbarbs ? 'checked' : ''
-            }></td></tr>`
-            : ''
-          }
+                  <tr><td>${t.options.newbarbs
+            }</td><td><input type="checkbox" class="optionNewbarbs" ${options.optionNewbarbs ?
+              'checked' : ''
+            }></td></tr>
                 </table></div><br><input type="button" class="btn optionButton" value="${t.options.button
           }"></div>`;
       }
@@ -1006,7 +1011,7 @@ const createPlanning = function (
         if (prop === '527|610' && targetY >= 610) {
             return; 
         }
-		if (prop === '527|610' && targetX <= 515) {
+	if (prop === '527|610' && targetX <= 515) {
             return;
         }
 
@@ -1021,20 +1026,20 @@ const createPlanning = function (
         if (prop === '509|607' && targetX >= 516) {
             return;
         }
-		if (prop === '509|607' && targetY >= 516) {
+	if (prop === '509|607' && targetY >= 616) {
             return;
         }
 
 		  //005
-		if (prop === '509|613' && targetX >= 516) {
+	if (prop === '509|613' && targetX >= 516) {
             return;
         }
-		if (prop === '509|613' && targetY <= 615) {
+	if (prop === '509|613' && targetY <= 615) {
             return;
         }
 
 		  		  //004
-		if (prop === '543|610' && targetX <= 538) {
+	if (prop === '543|610' && targetX <= 538) {
             return;
         }
 
