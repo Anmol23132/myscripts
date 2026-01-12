@@ -981,9 +981,11 @@ const createPlanning = function (
     // Hier kannst du Ziele eintragen, die öfter (oder seltener) gefarmt werden sollen.
     // Format: "Koordinate": Minuten
     const customTargetIntervals = {
-      "524|613": 3,  // Dieses Dorf wird alle 6 Minuten angegriffen
+      "524|613": 1,  // Dieses Dorf wird alle 6 Minuten angegriffen
       "525|613": 4,
- 	"526|615":3
+ 	"526|615":1,
+		"532|612":1,
+		"536|616":1
     };
     // -------------------------------------------------------
 
@@ -1000,25 +1002,43 @@ const createPlanning = function (
         // --- START DER KOORDINATEN-BEGRENZUNG ---
         let [targetX, targetY] = el.coord.split('|').map(Number);
 
-        // Beispiel für Dorf 003: Ersetze 'XXX|YYY' mit der echten Koordinate von 003
+        // 003
         if (prop === '527|610' && targetY >= 610) {
-            return; // Ziel wird übersprungen, wenn y größer als 610
+            return; 
         }
 		if (prop === '527|610' && targetX <= 515) {
             return;
         }
 
-        // Beispiel für Dorf 001: Darf nur Ziele mit x > 500 angreifen
+		  
+        // 001
         if (prop === '525|614' && targetX <= 515) {
             return;
         }
-        // --- ENDE DER KOORDINATEN-BEGRENZUNG ---
 
-	        // Beispiel für Dorf 002: Darf nur Ziele mit x > 500 angreifen
+
+	        //002
         if (prop === '509|607' && targetX >= 516) {
             return;
         }
-        // --- ENDE DER KOORDINATEN-BEGRENZUNG ---
+		if (prop === '509|607' && targetY >= 516) {
+            return;
+        }
+
+		  //005
+		if (prop === '509|613' && targetX >= 516) {
+            return;
+        }
+		if (prop === '509|613' && targetY <= 615) {
+            return;
+        }
+
+		  		  //004
+		if (prop === '543|610' && targetX <= 538) {
+            return;
+        }
+
+
 
         let template_name =
           optionMaxloot &&
