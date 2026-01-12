@@ -89,7 +89,6 @@ window.FarmGod.Library = (function () {
         },
         createQueues: function (amount) {
           let arr = [];
-
           for (let i = 0; i < amount; i++) {
             arr[i] = new twLib.queueLib.Queue();
           }
@@ -122,7 +121,6 @@ window.FarmGod.Library = (function () {
       },
       openWindow: function () {
         let item = new twLib.queueLib.Item('openWindow', arguments);
-
         twLib.queueLib.addItem(item);
       },
     };
@@ -133,7 +131,6 @@ window.FarmGod.Library = (function () {
   /**** Script Library ****/
   const setUnitSpeeds = function () {
     let unitSpeeds = {};
-
     $.when($.get('/interface.php?func=get_unit_info')).then((xml) => {
       $(xml)
         .find('config')
@@ -169,9 +166,7 @@ window.FarmGod.Library = (function () {
       .closest('td')
       .find('select')
       .first();
-    // Commented out the old version of the code, updated in April 2024
-    // The old version did not count the number of pages in the loot assistant properly when there were more than 15 or so due to the way the UI changes to not show all pages
-    // let navLength = ($html.find('#am_widget_Farm').length > 0) ? $html.find('#plunder_list_nav').first().find('a.paged-nav-item').length : ((navSelect.length > 0) ? navSelect.find('option').length - 1 : $html.find('.paged-nav-item').not('[href*="page=-1"]').length);
+
     let navLength =
       $html.find('#am_widget_Farm').length > 0
         ? parseInt(
@@ -193,7 +188,6 @@ window.FarmGod.Library = (function () {
       $('#mobileHeader').length > 0
         ? 10
         : parseInt($html.find('input[name="page_size"]').val());
-
     if (page == -1 && villageLength == 1000) {
       return Math.floor(1000 / pageSize);
     } else if (page < navLength) {
@@ -221,7 +215,6 @@ window.FarmGod.Library = (function () {
     let page = url.match('am_farm') || url.match('scavenge_mass') ? 0 : -1;
     let wrapFn = function (page, $html) {
       let dnp = determineNextPage(page, $html);
-
       if (dnp) {
         processorFn($html);
         return processPage(url, dnp, wrapFn);
@@ -229,7 +222,6 @@ window.FarmGod.Library = (function () {
         return processorFn($html);
       }
     };
-
     return processPage(url, page, wrapFn);
   };
 
@@ -244,7 +236,6 @@ window.FarmGod.Library = (function () {
     let result = array1.map((val, i) => {
       return val - array2[i];
     });
-
     return result.some((v) => v < 0) ? false : result;
   };
 
@@ -309,15 +300,12 @@ window.FarmGod.Library = (function () {
       ? { x: c.split('|')[0], y: c.split('|')[1] }
       : c;
   };
-
   String.prototype.toNumber = function () {
     return parseFloat(this);
   };
-
   Number.prototype.toNumber = function () {
     return parseFloat(this);
   };
-
   return {
     getUnitSpeeds,
     processPage,
@@ -343,9 +331,9 @@ window.FarmGod.Translation = (function () {
         group: 'Uit welke groep moet er gefarmd worden:',
         distance: 'Maximaal aantal velden dat farms mogen lopen:',
         time: 'Hoe veel tijd in minuten moet er tussen farms zitten:',
-        losses: 'Verstuur farm naar dorpen met gedeeltelijke verliezen:',
+        losses: 'Verstuur farm naar dorpen mit gedeeltelijke verliezen:',
         maxloot: 'Verstuur een B farm als de buit vorige keer vol was:',
-        newbarbs: 'Voeg nieuwe barbarendorpen toe om te farmen:',
+        newbarbs: 'Voeg neue barbarendorpen toe om te farmen:',
         button: 'Plan farms',
       },
       table: {
@@ -362,39 +350,6 @@ window.FarmGod.Translation = (function () {
         villageError:
           'Alle farms voor het huidige dorp zijn reeds verstuurd!',
         sendError: 'Error: farm niet verstuurd!',
-      },
-    },
-    hu_HU: {
-      missingFeatures:
-        'A scriptnek szÃ¼ksÃ©ge van PrÃ©mium fiÃ³kra Ã©s FarmkezelÅ‘re!',
-      options: {
-        title: 'FarmGod opciÃ³k',
-        warning:
-          '<b>Figyelem:</b><br>- Bizonyosodj meg rÃ³la, hogy az "A" sablon az alapÃ©rtelmezett Ã©s a "B" egy nagyobb mennyisÃ©gÅ± mikrÃ³-farm<br>- Bizonyosodj meg rÃ³la, hogy a farm-filterek megfelelÅ‘en vannak beÃ¡llÃ­tva mielÅ‘tt hasznÃ¡lod a sctiptet',
-        filterImage:
-          'https://higamy.github.io/TW/Scripts/Assets/farmGodFilters_HU.png',
-        group: 'EbbÅ‘l a csoportbÃ³l kÃ¼ldje:',
-        distance: 'MaximÃ¡lis mezÅ‘ tÃ¡volsÃ¡g:',
-        time: 'Mekkora idÅ‘intervallumban kÃ¼ldje a tÃ¡madÃ¡sokat percben:',
-        losses: 'KÃ¼ldjÃ¶n tÃ¡madÃ¡st olyan falvakba ahol rÃ©szleges vesztesÃ©ggel jÃ¡rhat a tÃ¡madÃ¡s:',
-        maxloot:
-          'A "B" sablont kÃ¼ldje abban az esetben, ha az elÅ‘zÅ‘ tÃ¡madÃ¡s maximÃ¡lis fosztogatÃ¡ssal jÃ¡rt:',
-        newbarbs: 'Adj hozzÃ¡ Ãºj barbÃ¡r falukat:',
-        button: 'Farm megtervezÃ©se',
-      },
-      table: {
-        noFarmsPlanned:
-          'A jelenlegi beÃ¡llÃ­tÃ¡sokkal nem lehet Ãºj tÃ¡madÃ¡st kikÃ¼ldeni.',
-        origin: 'Origin',
-        target: 'CÃ©lpont',
-        fields: 'TÃ¡volsÃ¡g',
-        farm: 'Farm',
-        goTo: 'Go to',
-      },
-      messages: {
-        villageChanged: 'Falu sikeresen megvÃ¡ltoztatva!',
-        villageError: 'Minden farm kiment a jelenlegi falubÃ³l!',
-        sendError: 'Hiba: Farm nemvolt elkÃ¼ldve!',
       },
     },
     int: {
@@ -473,6 +428,8 @@ window.FarmGod.Main = (function (Library, Translation) {
                 $('.optionMaxloot').prop('checked');
               let optionNewbarbs =
                 $('.optionNewbarbs').prop('checked') || false;
+              let optionWall =
+                $('.optionWall').prop('checked') || false;
 
               localStorage.setItem(
                 'farmGod_options',
@@ -483,9 +440,9 @@ window.FarmGod.Main = (function (Library, Translation) {
                   optionLosses: optionLosses,
                   optionMaxloot: optionMaxloot,
                   optionNewbarbs: optionNewbarbs,
+                  optionWall: optionWall
                 })
               );
-
               $('.optionsContent').html(
                 UI.Throbber[0].outerHTML + '<br><br>'
               );
@@ -500,6 +457,7 @@ window.FarmGod.Main = (function (Library, Translation) {
                   optionDistance,
                   optionTime,
                   optionMaxloot,
+                  optionWall,
                   data
                 );
                 $('.farmGodContent').remove();
@@ -528,11 +486,6 @@ window.FarmGod.Main = (function (Library, Translation) {
     } else {
       UI.ErrorMessage(t.missingFeatures);
     }
-
-    /*
-    if (game_data.market != 'nl') {
-      $.post('https://swtools.be/ScriptStats/insert.php', { script: 'FarmGod', market: game_data.market, world: game_data.world, player: game_data.player.id });
-    }*/
   };
 
   const bindEventHandlers = function () {
@@ -548,7 +501,6 @@ window.FarmGod.Main = (function (Library, Translation) {
           UI.ErrorMessage(t.messages.villageError);
         }
       });
-
     $(document)
       .off('keydown')
       .on('keydown', (event) => {
@@ -556,7 +508,6 @@ window.FarmGod.Main = (function (Library, Translation) {
           $('.farmGod_icon').first().trigger('click');
         }
       });
-
     $('.switchVillage')
       .off('click')
       .on('click', function () {
@@ -566,7 +517,7 @@ window.FarmGod.Main = (function (Library, Translation) {
       });
   };
 
- const buildOptions = function () {
+  const buildOptions = function () {
     let options = JSON.parse(localStorage.getItem('farmGod_options')) ||
     {
       optionGroup: 0,
@@ -575,8 +526,8 @@ window.FarmGod.Main = (function (Library, Translation) {
       optionLosses: false,
       optionMaxloot: true,
       optionNewbarbs: true,
+      optionWall: false
     };
-
     let checkboxSettings = [false, true, true, true, false];
     let checkboxError = $('#plunder_list_filters')
       .find('input[type="checkbox"]')
@@ -585,15 +536,12 @@ window.FarmGod.Main = (function (Library, Translation) {
       })
       .get()
       .includes(true);
-
     let $templateRows = $('form[action*="action=edit_all"]')
       .find('input[type="hidden"][name*="template"]')
       .closest('tr');
-
     let templateError =
       $templateRows.first().find('td').last().text().toNumber() >=
       $templateRows.last().find('td').last().text().toNumber();
-
     return $.when(buildGroupSelect(options.optionGroup)).then(
       (groupSelect) => {
         return `<style>#popup_box_FarmGod{text-align:center;width:550px;}</style>
@@ -602,7 +550,6 @@ window.FarmGod.Main = (function (Library, Translation) {
             ? `<div class="info_box" style="line-height: 15px;font-size:10px;text-align:left;"><p style="margin:0px 5px;">${t.options.warning}<br><img src="${t.options.filterImage}" style="width:100%;"></p></div><br>`
             : ``
           }
-    
                 <div style="width:90%;margin:auto;background: url(\'graphic/index/main_bg.jpg\') 100% 0% #E3D5B3;border: 1px solid #7D510F;border-collapse: separate !important;border-spacing: 0px !important;"><table class="vis" style="width:100%;text-align:left;font-size:11px;">
                   <tr><td>${t.options.group}</td><td>${groupSelect}</td></tr>
                   <tr><td>${t.options.distance
@@ -623,6 +570,7 @@ window.FarmGod.Main = (function (Library, Translation) {
             }</td><td><input type="checkbox" class="optionNewbarbs" ${options.optionNewbarbs ?
               'checked' : ''
             }></td></tr>
+                  <tr><td>Wall-Filter (Wall 0 erzwingen)</td><td><input type="checkbox" class="optionWall" ${options.optionWall ? 'checked' : ''}></td></tr>
                 </table></div><br><input type="button" class="btn optionButton" value="${t.options.button
           }"></div>`;
       }
@@ -654,7 +602,6 @@ window.FarmGod.Main = (function (Library, Translation) {
     let html = `<div class="vis farmGodContent"><h4>FarmGod</h4><table class="vis" width="100%">
                 <tr><div id="FarmGodProgessbar" class="progress-bar live-progress-bar progress-bar-alive" style="width:98%;margin:5px auto;"><div style="background: rgb(146, 194, 0);"></div><span class="label" style="margin-top:0px;"></span></div></tr>
                 <tr><th style="text-align:center;">${t.table.origin}</th><th style="text-align:center;">${t.table.target}</th><th style="text-align:center;">${t.table.fields}</th><th style="text-align:center;">${t.table.farm}</th></tr>`;
-
     if (!$.isEmptyObject(plan)) {
       for (let prop in plan) {
         if (game_data.market == 'nl') {
@@ -685,14 +632,12 @@ window.FarmGod.Main = (function (Library, Translation) {
 
     return html;
   };
-
   const getData = function (group, newbarbs, losses) {
     let data = {
       villages: {},
       commands: {},
       farms: { templates: {}, farms: {} },
     };
-
     let villagesProcessor = ($html) => {
       let skipUnits = ['ram', 'catapult', 'knight', 'snob', 'militia'];
       const mobileCheck = $('#mobileHeader').length > 0;
@@ -736,12 +681,10 @@ window.FarmGod.Main = (function (Library, Translation) {
                 }
               }
             });
-
             const filteredUnits = units.filter(
               (_, index) =>
                 skipUnits.indexOf(game_data.units[index]) === -1
             );
-
             data.villages[coord] = {
               name: name,
               id: villageId,
@@ -789,7 +732,6 @@ window.FarmGod.Main = (function (Library, Translation) {
       console.log('villages', data.villages);
       return data;
     };
-
     let commandsProcessor = ($html) => {
       $html
         .find('#commands_table')
@@ -814,14 +756,12 @@ window.FarmGod.Main = (function (Library, Translation) {
             );
           }
         });
-
       return data;
     };
 
     let farmProcessor = ($html) => {
       if ($.isEmptyObject(data.farms.templates)) {
         let unitSpeeds = lib.getUnitSpeeds();
-
         $html
           .find('form[action*="action=edit_all"]')
           .find('input[type="hidden"][name*="template"]')
@@ -860,10 +800,10 @@ window.FarmGod.Main = (function (Library, Translation) {
                   .map((index, element) => {
                     return $(element).val().toNumber() > 0
                       ? unitSpeeds[
-                      $(element)
-                        .attr('name')
-                        .trim()
-                        .split('[')[0]
+                        $(element)
+                          .attr('name')
+                          .trim()
+                          .split('[')[0]
                       ]
                       : 0;
                   })
@@ -892,9 +832,10 @@ window.FarmGod.Main = (function (Library, Translation) {
               .attr('src')
               .match(/dots\/(green|yellow|red|blue|red_blue)/)[1],
             max_loot: $el.find('img[src*="max_loot/1"]').length > 0,
+            // NEU: Wall auslesen 
+            wall: $el.find('td').eq(6).text().trim()
           });
         });
-
       return data;
     };
 
@@ -922,7 +863,6 @@ window.FarmGod.Main = (function (Library, Translation) {
         return data;
       }
     };
-
     let filterFarms = () => {
       data.farms.farms = Object.fromEntries(
         Object.entries(data.farms.farms).filter(([key, val]) => {
@@ -934,7 +874,6 @@ window.FarmGod.Main = (function (Library, Translation) {
           );
         })
       );
-
       return data;
     };
 
@@ -965,34 +904,24 @@ window.FarmGod.Main = (function (Library, Translation) {
       });
   };
 
-
-
-
-
-
-
-
-
-const createPlanning = function (
+  const createPlanning = function (
     optionDistance,
     optionTime,
     optionMaxloot,
+    optionWall,
     data
   ) {
     let plan = { counter: 0, farms: {} };
     let serverTime = Math.round(lib.getCurrentServerTime() / 1000);
 
-    // --- NEU: INDIVIDUELLE INTERVALLE PRO ZIEL-KOORDINATE ---
-    // Hier kannst du Ziele eintragen, die öfter (oder seltener) gefarmt werden sollen.
-    // Format: "Koordinate": Minuten
+    // --- NEU: INDIVIDUELLE INTERVALLE PRO ZIEL-KOORDINATE [cite: 172] ---
     const customTargetIntervals = {
-      "524|613": 1,  // Dieses Dorf wird alle 6 Minuten angegriffen
+      "524|613": 1,
       "525|613": 4,
- 	"526|615":1,
-		"532|612":1,
-		"536|616":1
+      "526|615": 1,
+      "532|612": 1,
+      "536|616": 1
     };
-    // -------------------------------------------------------
 
     for (let prop in data.villages) {
       let orderedFarms = Object.keys(data.farms.farms)
@@ -1000,64 +929,32 @@ const createPlanning = function (
           return { coord: key, dis: lib.getDistance(prop, key) };
         })
         .sort((a, b) => (a.dis > b.dis ? 1 : -1));
-
       orderedFarms.forEach((el) => {
         let farmIndex = data.farms.farms[el.coord];
 
-        // --- START DER KOORDINATEN-BEGRENZUNG ---
+        // --- NEU: WALL FILTER ---
+        if (optionWall && farmIndex.wall !== "?" && parseInt(farmIndex.wall) > 0) {
+          return;
+        }
+
+        // --- KOORDINATEN-BEGRENZUNG (Bestehend)  ---
         let [targetX, targetY] = el.coord.split('|').map(Number);
-
-        // 003
-        if (prop === '527|610' && targetY >= 610) {
-            return; 
-        }
-	if (prop === '527|610' && targetX <= 515) {
-            return;
-        }
-
-		  
-        // 001
-        if (prop === '525|614' && targetX <= 515) {
-            return;
-        }
-
-
-	        //002
-        if (prop === '509|607' && targetX >= 516) {
-            return;
-        }
-	if (prop === '509|607' && targetY >= 616) {
-            return;
-        }
-
-		  //005
-	if (prop === '509|613' && targetX >= 516) {
-            return;
-        }
-	if (prop === '509|613' && targetY <= 615) {
-            return;
-        }
-
-		  		  //004
-	if (prop === '543|610' && targetX <= 538) {
-            return;
-        }
-
-
+        if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
+        if (prop === '525|614' && targetX <= 515) return;
+        if (prop === '509|607' && (targetX >= 516 || targetY >= 616)) return;
+        if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
+        if (prop === '543|610' && targetX <= 538) return;
 
         let template_name =
           optionMaxloot &&
             farmIndex.hasOwnProperty('max_loot') &&
             farmIndex.max_loot
-            ? 'b'
-            : 'a';
+            ? 'b' : 'a';
         let template = data.farms.templates[template_name];
-    
         let unitsLeft = lib.subtractArrays(
           data.villages[prop].units,
           template.units
         );
-
         let distance = lib.getDistance(prop, el.coord);
         let arrival = Math.round(
           serverTime +
@@ -1065,21 +962,15 @@ const createPlanning = function (
           Math.round(plan.counter / 5)
         );
 
-        // --- LOGIK FÜR VARIABLES INTERVALL ---
-        // Prüfe, ob das Ziel in der Liste ist, sonst nimm den Standard (optionTime)
+        // --- LOGIK FÜR VARIABLES INTERVALL [cite: 181-183] ---
         let currentInterval = customTargetIntervals.hasOwnProperty(el.coord)
           ? customTargetIntervals[el.coord]
           : optionTime;
-
-        let maxTimeDiff = Math.round(currentInterval * 60); // Umrechnung in Sekunden
-        // --------------------------------------
+        let maxTimeDiff = Math.round(currentInterval * 60);
 
         let timeDiff = true;
         if (data.commands.hasOwnProperty(el.coord)) {
-          if (
-            !farmIndex.hasOwnProperty('color') &&
-            data.commands[el.coord].length > 0
-          )
+          if (!farmIndex.hasOwnProperty('color') && data.commands[el.coord].length > 0)
             timeDiff = false;
           data.commands[el.coord].forEach((timestamp) => {
             if (Math.abs(timestamp - arrival) < maxTimeDiff)
