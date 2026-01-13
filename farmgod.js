@@ -942,11 +942,11 @@ window.FarmGod.Main = (function (Library, Translation) {
 
         // --- KOORDINATEN-BEGRENZUNG (Bestehend)  ---
         let [targetX, targetY] = el.coord.split('|').map(Number);
-        if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
-        if (prop === '525|614' && targetX <= 515) return;
-        if (prop === '509|607' && (targetX >= 516 || targetY >= 616)) return;
-        if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
-        if (prop === '543|610' && targetX <= 538) return;
+        if (prop === '527|610' && (targetY >= 610 || targetX <= 517)) return; //003
+        if (prop === '525|614' && targetX <= 517) return; //001
+        if (prop === '509|607' && (targetX >= 518 || targetY >= 616)) return; //002
+        if (prop === '509|613' && (targetX >= 518 || targetY <= 615)) return; //005
+        if (prop === '543|610' && targetX <= 538) return; //004
 
         let template_name =
           optionMaxloot &&
