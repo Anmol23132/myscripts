@@ -920,7 +920,10 @@ window.FarmGod.Main = (function (Library, Translation) {
       "525|613": 4,
       "526|615": 1,
       "532|612": 1,
-      "536|616": 1
+      "536|616": 1,
+      "506|610": 1,
+      "502|600": 1,
+      "501|611": 4,
     };
 
     for (let prop in data.villages) {
