@@ -325,7 +325,7 @@ window.FarmGod.Translation = (function () {
       options: {
         title: 'FarmGod Opties',
         warning:
-          '<b>Waarschuwingen:</b><br>- Zorg dat A is ingesteld als je standaard microfarm en B als een grotere microfarm<br>- Zorg dat de farm filters correct sind ingesteld voor je het script gebruikt',
+          '<b>Waarschuwingen:</b><br>- Zorg dat A is ingesteld als je standaard microfarm en B als een grotere microfarm<br>- Zorg dat de farm filters correct zijn ingesteld voor je het script gebruikt',
         filterImage:
           'https://higamy.github.io/TW/Scripts/Assets/farmGodFilters.png',
         group: 'Uit welke groep moet er gefarmd worden:',
@@ -348,7 +348,7 @@ window.FarmGod.Translation = (function () {
       messages: {
         villageChanged: 'Succesvol van dorp veranderd!',
         villageError:
-          'Alle farms voor het huidige dorp zijn reeds verstuurd!',
+          'Alle farms voor het huidige dorp sind reeds verstuurd!',
         sendError: 'Error: farm niet verstuurd!',
       },
     },
@@ -813,16 +813,30 @@ window.FarmGod.Main = (function (Library, Translation) {
           });
       }
 
-      // --- DYNAMISCHE WALL-SPALTENERKENNUNG ---
-      let wallHeader = $html.find('#plunder_list tr').first().find('img[src*="wall.png"]');
-      let wallIdx = wallHeader.length > 0 ? wallHeader.closest('td, th').index() : 6;
-      // ----------------------------------------
+      const mobileCheck = $('#mobileHeader').length > 0;
+      let wallIdx = -1;
+      
+      if (!mobileCheck) {
+          let wallHeader = $html.find('#plunder_list tr').first().find('img[src*="wall.png"]');
+          wallIdx = wallHeader.length > 0 ? wallHeader.closest('td, th').index() : 6;
+      }
 
       $html
         .find('#plunder_list')
         .find('tr[id^="village_"]')
         .map((i, el) => {
           let $el = $(el);
+          let wallValue = "?";
+
+          if (mobileCheck) {
+              // --- MOBILE LOGIK: 4. ZAHL IN ZELLE [1] ---
+              let cellText = $el.find('td').eq(1).text().trim();
+              let parts = cellText.split(/\s+/); // Zerlegt bei Leerzeichen
+              wallValue = parts[3] || "?";       // Die 4. Zahl (Index 3)
+          } else {
+              // --- PC LOGIK: NORMALE SPALTE ---
+              wallValue = $el.find('td').eq(wallIdx).text().trim();
+          }
 
           return (data.farms.farms[
             $el
@@ -837,8 +851,7 @@ window.FarmGod.Main = (function (Library, Translation) {
               .attr('src')
               .match(/dots\/(green|yellow|red|blue|red_blue)/)[1],
             max_loot: $el.find('img[src*="max_loot/1"]').length > 0,
-            // Benutze den dynamisch gefundenen Index
-            wall: $el.find('td').eq(wallIdx).text().trim()
+            wall: wallValue
           });
         });
       return data;
