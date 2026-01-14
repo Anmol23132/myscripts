@@ -959,7 +959,7 @@ window.FarmGod.Main = (function (Library, Translation) {
         let [targetX, targetY] = el.coord.split('|').map(Number);
         if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
         if (prop === '525|614' && targetX <= 515) return;
-        if (prop === '509|607' && (targetX >= 516 || targetY >= 516)) return;
+        if (prop === '509|607' && (targetX >= 516 || targetY >= 616)) return;
         if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
         if (prop === '543|610' && targetX <= 538) return;
 
