@@ -325,7 +325,7 @@ window.FarmGod.Translation = (function () {
       options: {
         title: 'FarmGod Opties',
         warning:
-          '<b>Waarschuwingen:</b><br>- Zorg dat A is ingesteld als je standaard microfarm en B als een grotere microfarm<br>- Zorg dat de farm filters correct zijn ingesteld voor je het script gebruikt',
+          '<b>Waarschuwingen:</b><br>- Zorg dat A is ingesteld als je standaard microfarm en B als een grotere microfarm<br>- Zorg dat de farm filters correct sind ingesteld voor je het script gebruikt',
         filterImage:
           'https://higamy.github.io/TW/Scripts/Assets/farmGodFilters.png',
         group: 'Uit welke groep moet er gefarmd worden:',
@@ -366,7 +366,7 @@ window.FarmGod.Translation = (function () {
         time: 'How much time in minutes should there be between farms:',
         losses: 'Send farm to villages with partial losses:',
         maxloot: 'Send a B farm if the last loot was full:',
-        newbarbs: 'Add new barbs te farm:',
+        newbarbs: 'Add new barbs to farm:',
         button: 'Plan farms',
       },
       table: {
@@ -813,6 +813,11 @@ window.FarmGod.Main = (function (Library, Translation) {
           });
       }
 
+      // --- DYNAMISCHE WALL-SPALTENERKENNUNG ---
+      let wallHeader = $html.find('#plunder_list tr').first().find('img[src*="wall.png"]');
+      let wallIdx = wallHeader.length > 0 ? wallHeader.closest('td, th').index() : 6;
+      // ----------------------------------------
+
       $html
         .find('#plunder_list')
         .find('tr[id^="village_"]')
@@ -832,8 +837,8 @@ window.FarmGod.Main = (function (Library, Translation) {
               .attr('src')
               .match(/dots\/(green|yellow|red|blue|red_blue)/)[1],
             max_loot: $el.find('img[src*="max_loot/1"]').length > 0,
-            // NEU: Wall auslesen 
-            wall: $el.find('td').eq(6).text().trim()
+            // Benutze den dynamisch gefundenen Index
+            wall: $el.find('td').eq(wallIdx).text().trim()
           });
         });
       return data;
@@ -914,16 +919,13 @@ window.FarmGod.Main = (function (Library, Translation) {
     let plan = { counter: 0, farms: {} };
     let serverTime = Math.round(lib.getCurrentServerTime() / 1000);
 
-    // --- NEU: INDIVIDUELLE INTERVALLE PRO ZIEL-KOORDINATE [cite: 172] ---
+    // --- DEINE INDIVIDUELLEN INTERVALLE ---
     const customTargetIntervals = {
       "524|613": 1,
       "525|613": 4,
       "526|615": 1,
-      "532|612": 300,
-      "536|616": 1,
-      "506|610": 1,
-      "502|600": 1,
-      "501|611": 4,
+      "532|612": 1,
+      "536|616": 1
     };
 
     for (let prop in data.villages) {
@@ -935,18 +937,18 @@ window.FarmGod.Main = (function (Library, Translation) {
       orderedFarms.forEach((el) => {
         let farmIndex = data.farms.farms[el.coord];
 
-        // --- NEU: WALL FILTER ---
+        // --- WALL FILTER ---
         if (optionWall && farmIndex.wall !== "?" && parseInt(farmIndex.wall) > 0) {
           return;
         }
 
-        // --- KOORDINATEN-BEGRENZUNG (Bestehend)  ---
+        // --- DEINE KOORDINATEN-BEGRENZUNGEN ---
         let [targetX, targetY] = el.coord.split('|').map(Number);
-        if (prop === '527|610' && (targetY >= 610 || targetX <= 517)) return; //003
-        if (prop === '525|614' && targetX <= 517) return; //001
-        if (prop === '509|607' && (targetX >= 518 || targetY >= 616)) return; //002
-        if (prop === '509|613' && (targetX >= 518 || targetY <= 615)) return; //005
-        if (prop === '543|610' && targetX <= 538) return; //004
+        if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
+        if (prop === '525|614' && targetX <= 515) return;
+        if (prop === '509|607' && (targetX >= 516 || targetY >= 516)) return;
+        if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
+        if (prop === '543|610' && targetX <= 538) return;
 
         let template_name =
           optionMaxloot &&
@@ -965,7 +967,6 @@ window.FarmGod.Main = (function (Library, Translation) {
           Math.round(plan.counter / 5)
         );
 
-        // --- LOGIK FÜR VARIABLES INTERVALL [cite: 181-183] ---
         let currentInterval = customTargetIntervals.hasOwnProperty(el.coord)
           ? customTargetIntervals[el.coord]
           : optionTime;
