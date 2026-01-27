@@ -348,7 +348,7 @@ window.FarmGod.Translation = (function () {
       messages: {
         villageChanged: 'Succesvol van dorp veranderd!',
         villageError:
-          'Alle farms voor het huidige dorp sind reeds verstuurd!',
+          'Alle farms voor het huidige dorp zijn reeds verstuurd!',
         sendError: 'Error: farm niet verstuurd!',
       },
     },
@@ -416,7 +416,7 @@ window.FarmGod.Main = (function (Library, Translation) {
 
           $('.optionButton')
             .off('click')
-            .on('click', () => {
+            .on('click', async () => {
               let optionGroup = parseInt($('.optionGroup').val());
               let optionDistance = parseFloat(
                 $('.optionDistance').val()
@@ -443,39 +443,41 @@ window.FarmGod.Main = (function (Library, Translation) {
                   optionWall: optionWall
                 })
               );
+              
+              // Planung Starten - Anzeige Fortschrittsbalken
               $('.optionsContent').html(
-                UI.Throbber[0].outerHTML + '<br><br>'
+                `<div id="PlanningProgress" class="progress-bar live-progress-bar progress-bar-alive" style="width:100%;"><div style="background: #218838; width:0%;"></div><span class="label" style="margin-top:0px;">Lade Daten...</span></div>`
               );
-              getData(
-                optionGroup,
-                optionNewbarbs,
-                optionLosses
-              ).then((data) => {
-                Dialog.close();
 
-                let plan = createPlanning(
-                  optionDistance,
-                  optionTime,
-                  optionMaxloot,
-                  optionWall,
-                  data
-                );
-                $('.farmGodContent').remove();
-                $('#am_widget_Farm')
-                  .first()
-                  .before(buildTable(plan.farms));
+              let data = await getData(optionGroup, optionNewbarbs, optionLosses);
+              
+              $('#PlanningProgress span').text('Plane Farms...');
 
-                bindEventHandlers();
-                UI.InitProgressBars();
-                UI.updateProgressBar(
-                  $('#FarmGodProgessbar'),
-                  0,
-                  plan.counter
-                );
-                $('#FarmGodProgessbar')
-                  .data('current', 0)
-                  .data('max', plan.counter);
-              });
+              let plan = await createPlanningAsync(
+                optionDistance,
+                optionTime,
+                optionMaxloot,
+                optionWall,
+                data
+              );
+
+              Dialog.close();
+
+              $('.farmGodContent').remove();
+              $('#am_widget_Farm')
+                .first()
+                .before(buildTable(plan.farms));
+
+              bindEventHandlers();
+              UI.InitProgressBars();
+              UI.updateProgressBar(
+                $('#FarmGodProgessbar'),
+                0,
+                plan.counter
+              );
+              $('#FarmGodProgessbar')
+                .data('current', 0)
+                .data('max', plan.counter);
             });
 
           document.querySelector('.optionButton').focus();
@@ -831,8 +833,8 @@ window.FarmGod.Main = (function (Library, Translation) {
           if (mobileCheck) {
               // --- MOBILE LOGIK: 4. ZAHL IN ZELLE [1] ---
               let cellText = $el.find('td').eq(1).text().trim();
-              let parts = cellText.split(/\s+/); // Zerlegt bei Leerzeichen
-              wallValue = parts[3] || "?";       // Die 4. Zahl (Index 3)
+              let parts = cellText.split(/\s+/);
+              wallValue = parts[3] || "?";
           } else {
               // --- PC LOGIK: NORMALE SPALTE ---
               wallValue = $el.find('td').eq(wallIdx).text().trim();
@@ -922,101 +924,90 @@ window.FarmGod.Main = (function (Library, Translation) {
       });
   };
 
-  const createPlanning = function (
+  // --- OPTIMIERTES ASYNCHRONES PLANNING ---
+  const createPlanningAsync = async (
     optionDistance,
     optionTime,
     optionMaxloot,
     optionWall,
     data
-  ) {
+  ) => {
     let plan = { counter: 0, farms: {} };
     let serverTime = Math.round(lib.getCurrentServerTime() / 1000);
-
-    // --- DEINE INDIVIDUELLEN INTERVALLE ---
     const customTargetIntervals = {
-      "524|613": 1,
-      "525|613": 4,
-      "526|615": 1,
-      "532|612": 1,
-      "536|616": 1
+      "524|613": 1, "525|613": 4, "526|615": 1, "532|612": 1, "536|616": 1
     };
 
-    for (let prop in data.villages) {
-      let orderedFarms = Object.keys(data.farms.farms)
-        .map((key) => {
-          return { coord: key, dis: lib.getDistance(prop, key) };
-        })
-        .sort((a, b) => (a.dis > b.dis ? 1 : -1));
-      orderedFarms.forEach((el) => {
-        let farmIndex = data.farms.farms[el.coord];
+    let myVillages = Object.keys(data.villages);
+    let totalTargets = Object.keys(data.farms.farms).length;
 
-        // --- WALL FILTER ---
-        if (optionWall && farmIndex.wall !== "?" && parseInt(farmIndex.wall) > 0) {
-          return;
+    for (let i = 0; i < myVillages.length; i++) {
+        let prop = myVillages[i];
+
+        // Fortschrittsbalken aktualisieren
+        let percent = Math.round((i / myVillages.length) * 100);
+        $('#PlanningProgress div').css('width', percent + '%');
+        $('#PlanningProgress span').text(`Plane Farms... Dorf ${i+1}/${myVillages.length}`);
+
+        // Kurz pausieren, damit das UI (Fortschrittsbalken) nicht einfriert
+        await new Promise(r => setTimeout(r, 1));
+
+        // OPTIMIERUNG: Nur Ziele in Reichweite sortieren
+        let targetsInRange = [];
+        for (let coord in data.farms.farms) {
+            let dist = lib.getDistance(prop, coord);
+            if (dist <= optionDistance) {
+                targetsInRange.push({ coord, dis: dist });
+            }
         }
+        targetsInRange.sort((a, b) => a.dis - b.dis);
 
-        // --- DEINE KOORDINATEN-BEGRENZUNGEN ---
-        let [targetX, targetY] = el.coord.split('|').map(Number);
-        if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
-        if (prop === '525|614' && targetX <= 515) return;
-        if (prop === '509|607' && (targetX >= 516 || targetY >= 616)) return;
-        if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
-        if (prop === '543|610' && targetX <= 538) return;
+        targetsInRange.forEach((el) => {
+            let farmIndex = data.farms.farms[el.coord];
 
-        let template_name =
-          optionMaxloot &&
-            farmIndex.hasOwnProperty('max_loot') &&
-            farmIndex.max_loot
-            ? 'b' : 'a';
-        let template = data.farms.templates[template_name];
-        let unitsLeft = lib.subtractArrays(
-          data.villages[prop].units,
-          template.units
-        );
-        let distance = lib.getDistance(prop, el.coord);
-        let arrival = Math.round(
-          serverTime +
-          distance * template.speed * 60 +
-          Math.round(plan.counter / 5)
-        );
+            // WALL FILTER
+            if (optionWall && farmIndex.wall !== "?" && parseInt(farmIndex.wall) > 0) return;
 
-        let currentInterval = customTargetIntervals.hasOwnProperty(el.coord)
-          ? customTargetIntervals[el.coord]
-          : optionTime;
-        let maxTimeDiff = Math.round(currentInterval * 60);
+            // KOORDINATEN BEGRENZUNGEN
+            let [targetX, targetY] = el.coord.split('|').map(Number);
+            if (prop === '527|610' && (targetY >= 610 || targetX <= 515)) return;
+            if (prop === '525|614' && targetX <= 515) return;
+            if (prop === '509|607' && (targetX >= 516 || targetY >= 516)) return;
+            if (prop === '509|613' && (targetX >= 516 || targetY <= 615)) return;
+            if (prop === '543|610' && targetX <= 538) return;
 
-        let timeDiff = true;
-        if (data.commands.hasOwnProperty(el.coord)) {
-          if (!farmIndex.hasOwnProperty('color') && data.commands[el.coord].length > 0)
-            timeDiff = false;
-          data.commands[el.coord].forEach((timestamp) => {
-            if (Math.abs(timestamp - arrival) < maxTimeDiff)
-              timeDiff = false;
-          });
-        } else {
-          data.commands[el.coord] = [];
-        }
+            let template_name = (optionMaxloot && farmIndex.max_loot) ? 'b' : 'a';
+            let template = data.farms.templates[template_name];
+            let unitsLeft = lib.subtractArrays(data.villages[prop].units, template.units);
+            
+            let arrival = Math.round(serverTime + el.dis * template.speed * 60 + Math.round(plan.counter / 5));
+            let currentInterval = customTargetIntervals[el.coord] || optionTime;
+            let maxTimeDiff = Math.round(currentInterval * 60);
 
-        if (unitsLeft && timeDiff && distance < optionDistance) {
-          plan.counter++;
-          if (!plan.farms.hasOwnProperty(prop)) plan.farms[prop] = [];
+            let timeDiff = true;
+            if (data.commands.hasOwnProperty(el.coord)) {
+                if (!farmIndex.hasOwnProperty('color') && data.commands[el.coord].length > 0) timeDiff = false;
+                data.commands[el.coord].forEach((timestamp) => {
+                    if (Math.abs(timestamp - arrival) < maxTimeDiff) timeDiff = false;
+                });
+            } else {
+                data.commands[el.coord] = [];
+            }
 
-          plan.farms[prop].push({
-            origin: {
-              coord: prop,
-              name: data.villages[prop].name,
-              id: data.villages[prop].id,
-            },
-            target: { coord: el.coord, id: farmIndex.id },
-            fields: distance,
-            template: { name: template_name, id: template.id },
-          });
-          data.villages[prop].units = unitsLeft;
-          data.commands[el.coord].push(arrival);
-        }
-      });
+            if (unitsLeft && timeDiff) {
+                plan.counter++;
+                if (!plan.farms.hasOwnProperty(prop)) plan.farms[prop] = [];
+                plan.farms[prop].push({
+                    origin: { coord: prop, name: data.villages[prop].name, id: data.villages[prop].id },
+                    target: { coord: el.coord, id: farmIndex.id },
+                    fields: el.dis,
+                    template: { name: template_name, id: template.id },
+                });
+                data.villages[prop].units = unitsLeft;
+                data.commands[el.coord].push(arrival);
+            }
+        });
     }
-
     return plan;
   };
 
